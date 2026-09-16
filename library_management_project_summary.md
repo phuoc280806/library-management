@@ -119,32 +119,24 @@ React hiển thị kết quả
 
 ## 5. Cấu trúc thư mục dự án
 
-Cấu trúc hiện tại:
-
-```text
-library-management/
-├── backend/
-├── database/
-├── docs/
-├── frontend/
-├── .gitignore
-└── README.md
-```
-
-Do Git không theo dõi thư mục rỗng, có thể thêm `.gitkeep`:
+Cấu trúc hiện tại (cập nhật 16/09/2026):
 
 ```text
 library-management/
 ├── backend/
 │   └── .gitkeep
 ├── database/
-│   └── .gitkeep
+│   ├── schema.sql                # dump cấu trúc 10 bảng từ MySQL 8.0
+│   ├── seed.sql                  # dữ liệu mẫu, chạy lại được nhiều lần
+│   └── test_borrow_return.sql    # diễn tập mượn → trả → phạt bằng SQL
 ├── docs/
-│   └── .gitkeep
+│   ├── ERD.mwb                   # file MySQL Workbench
+│   └── ERD.png                   # ảnh ERD
 ├── frontend/
 │   └── .gitkeep
 ├── .gitignore
-└── README.md
+├── README.md
+└── library_management_project_summary.md
 ```
 
 ---
@@ -328,6 +320,10 @@ return_date
 status
 ```
 
+Trạng thái:
+- BORROWED
+- RETURNED
+
 ### FINES
 ```text
 fine_id
@@ -351,6 +347,18 @@ borrow_days
 fine_per_day
 updated_at
 updated_by
+effective_from
+effective_to
+```
+
+Ghi chú: đã thêm `effective_from` / `effective_to` để quy định có hiệu lực theo chu kỳ.
+Backend phải lấy quy định đang hiệu lực tại ngày mượn:
+
+```sql
+WHERE effective_from <= @today
+  AND (effective_to IS NULL OR effective_to >= @today)
+ORDER BY effective_from DESC
+LIMIT 1;
 ```
 
 ---
@@ -644,18 +652,19 @@ Ví dụ:
 
 ## 18. Lộ trình triển khai dự án
 
-### Milestone 1
+### Milestone 1 — ✅ Hoàn thành (15/09/2026)
 - Tạo cấu trúc project
 - Git
 - README
 - `.gitignore`
 
-### Milestone 2
+### Milestone 2 — ✅ Hoàn thành (16/09/2026)
 - Thiết kế database
 - ERD
 - Tạo schema MySQL
+- Dữ liệu mẫu + script kiểm thử nghiệp vụ bằng SQL
 
-### Milestone 3
+### Milestone 3 — ⏳ Tiếp theo
 - Backend cơ bản
 - Express
 - REST API
@@ -725,52 +734,90 @@ Không nên để cả 3 AI cùng viết một module theo 3 phong cách khác n
 
 ## 20. Tình trạng hiện tại
 
-Đã làm:
-- Chốt đề tài là **Quản lý thư viện trường THPT**.
-- Chốt hướng công nghệ:
-  - React
-  - Node.js + Express
-  - MySQL
-- Đã tạo thư mục dự án trong VS Code:
+*Cập nhật lần cuối: 16/09/2026*
+
+### Lịch sử commit
 
 ```text
-library-management/
-├── backend/
-├── database/
-├── docs/
-├── frontend/
-├── .gitignore
-└── README.md
+b21c594  2026-09-15  chore: initialize project structure
+821f7a7  2026-09-16  feat(db): add MySQL schema, seed data, test script and ERD
 ```
 
-- Đang ở giai đoạn rất đầu của dự án.
-- Chưa bắt đầu React.
-- Chưa bắt đầu Backend.
-- Chưa bắt đầu MySQL.
-- Đang hoàn thiện cấu trúc project và Git trước.
+Repo đã có remote `origin/main` trên GitHub. Working tree sạch (không có thay đổi chưa commit).
+
+### Đã làm
+
+**Milestone 1 — Cấu trúc project + Git** ✅
+- Chốt đề tài **Quản lý thư viện trường THPT**.
+- Chốt công nghệ: React / Node.js + Express / MySQL.
+- Tạo cấu trúc thư mục, `.gitignore`, `README.md`, `.gitkeep`.
+- `git init`, commit đầu tiên, push lên GitHub.
+
+**Milestone 2 — Thiết kế database** ✅
+- Vẽ ERD bằng MySQL Workbench → `docs/ERD.mwb`, `docs/ERD.png`.
+- Tạo database `library_management` trên MySQL 8.0 với đủ **10 bảng**:
+  `roles`, `users`, `readers`, `categories`, `books`, `book_copies`,
+  `borrow_tickets`, `borrow_details`, `fines`, `regulations`.
+- Dump cấu trúc ra `database/schema.sql`.
+- Điểm khác so với thiết kế ban đầu:
+  - `regulations` có thêm `effective_from`, `effective_to` + CHECK constraint
+    (`effective_to >= effective_from`) để quản lý quy định theo chu kỳ.
+  - `borrow_details.status` chốt là `BORROWED` / `RETURNED`.
+  - `fines.borrow_detail_id` là UNIQUE (mỗi lần trả tối đa 1 khoản phạt).
+  - `users.status` là `tinyint(1)`: 1 = hoạt động, 0 = bị khóa.
+- Viết `database/seed.sql`: 3 role, 8 user (1 admin, 1 thủ thư, 6 bạn đọc trong đó
+  1 bị khóa), 4 thể loại, 8 đầu sách, 14 bản sao, 2 quy định, 5 phiếu mượn phủ đủ
+  các tình huống: đang mượn, quá hạn, trả đúng hạn, trả trễ đã nộp phạt, trả trễ chưa nộp phạt.
+- Viết `database/test_borrow_return.sql`: diễn tập toàn bộ luồng nghiệp vụ bằng SQL
+  thuần — lấy quy định hiệu lực → kiểm tra bạn đọc bị khóa → đếm sách đang giữ →
+  kiểm tra bản sao AVAILABLE → lập phiếu (transaction) → trả sách + tính phạt
+  (transaction) → thu phạt → 4 truy vấn báo cáo. Mỗi khối SQL này chính là câu lệnh
+  backend sẽ gọi ở Milestone 6–7.
+
+### Chưa làm
+- Backend (`backend/` còn trống, chưa có `package.json`).
+- Frontend (`frontend/` còn trống).
+- `password_hash` trong seed đang là placeholder, chưa phải bcrypt thật.
+- Chưa có tài liệu đặc tả yêu cầu / use-case trong `docs/`.
 
 ---
 
 ## 21. Bước tiếp theo nên làm
 
-Bắt đầu từ phần đơn giản nhất.
+Bắt đầu **Milestone 3 — Backend cơ bản**. Trình tự đề xuất:
 
-Trình tự đề xuất:
-
-1. Điền nội dung `.gitignore`.
-2. Điền `README.md`.
-3. Thêm `.gitkeep` nếu các thư mục còn trống.
-4. Chạy:
+1. Khởi tạo project Node trong `backend/`:
 
 ```bash
-git init
-git status
-git add .
-git commit -m "chore: initialize project structure"
+cd backend
+npm init -y
+npm install express mysql2 dotenv cors
+npm install --save-dev nodemon
 ```
 
-5. Sau khi Git ổn, bắt đầu học **JavaScript cơ bản bằng các ví dụ trực tiếp từ nghiệp vụ thư viện**.
-6. Sau JavaScript cơ bản thì chuyển sang **MySQL + thiết kế database**.
+2. Tạo `backend/.env` (đã nằm trong `.gitignore`) chứa thông tin kết nối MySQL:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=...
+DB_NAME=library_management
+```
+
+3. Viết `src/config/db.js` dùng `mysql2/promise` tạo connection pool.
+4. Viết `src/app.js` + `server.js`, chạy thử `GET /api/health` trả về `{ status: "ok" }`.
+5. Viết API đầu tiên là **tra cứu sách** `GET /api/books` — dùng lại truy vấn D4
+   trong `test_borrow_return.sql` (mỗi đầu sách còn bao nhiêu bản có thể mượn).
+6. Test bằng Postman, commit:
+
+```bash
+git add .
+git commit -m "feat(backend): init express server and books search API"
+```
+
+7. Sau đó mới sang Milestone 4 (đăng nhập + JWT), lúc này thay placeholder
+   `password_hash` trong `seed.sql` bằng bcrypt thật.
 
 ---
 
