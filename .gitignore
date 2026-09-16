@@ -15,6 +15,9 @@ build/
 # Claude Code local settings
 .claude/settings.local.json
 
+# MySQL Workbench backup files
+*.mwb.bak
+
 # OS files
 .DS_Store
 Thumbs.db
