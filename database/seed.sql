@@ -48,7 +48,8 @@ INSERT INTO roles (role_id, role_name) VALUES
 -- 2. USERS
 --    status: 1 = đang hoạt động, 0 = bị khóa
 -- ---------------------------------------------------------------------
-SET @pw := '$2b$10$PLACEHOLDER.replace.in.milestone.4.with.real.bcrypt.hash';
+-- bcrypt hash của mật khẩu dev "123456" (tạo bằng backend/scripts/hash-seed-passwords.js)
+SET @pw := '$2b$10$zVoyL9Shfn40LdnsKxKz0OONN0EFkMEIlL7HHTUCkVjCLn3r0CWIe';
 
 INSERT INTO users (user_id, username, password_hash, full_name, email, phone, role_id, status) VALUES
   -- Quản trị viên

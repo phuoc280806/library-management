@@ -34,12 +34,12 @@ Xây dựng ứng dụng web hỗ trợ quản lý thư viện của một trư�
 |---|---|---|
 | 1 | Cấu trúc project, Git, README | ✅ Xong |
 | 2 | ERD, schema MySQL, seed, test SQL | ✅ Xong |
-| 3 | Backend Express cơ bản, REST API | ⏳ Đang làm |
-| 4 | Đăng nhập, JWT, phân quyền | ☐ |
-| 5 | CRUD sách, CRUD bạn đọc | ☐ |
-| 6 | Mượn sách | ☐ |
-| 7 | Trả sách, tính tiền phạt | ☐ |
-| 8 | Frontend React | ☐ |
+| 3 | Backend Express cơ bản, REST API | ✅ Xong |
+| 4 | Đăng nhập, JWT, phân quyền | ✅ Xong |
+| 5 | CRUD sách, CRUD bạn đọc | ✅ Xong |
+| 6 | Mượn sách | ✅ Xong |
+| 7 | Trả sách, tính tiền phạt | ✅ Xong |
+| 8 | Frontend React | ⏳ Tiếp theo |
 | 9 | Dashboard, thống kê | ☐ |
 | 10 | Testing, hoàn thiện báo cáo | ☐ |
 

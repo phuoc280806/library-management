@@ -15,6 +15,9 @@ build/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Learning / scratch files
+backend/learn/
+
 # MySQL Workbench backup files
 *.mwb.bak
 
