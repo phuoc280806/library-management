@@ -14,6 +14,9 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   charset: 'utf8mb4', // để tiếng Việt không bị lỗi font
   dateStrings: true, // DATE/DATETIME trả về chuỗi '2026-09-29' thay vì Date object bị lệch múi giờ
+  // MySQL trên cloud (Aiven, PlanetScale...) bắt buộc mã hoá đường truyền.
+  // Local không cần -> chỉ bật khi DB_SSL=true trong .env
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
 });
 
 module.exports = pool;

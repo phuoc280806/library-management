@@ -1,0 +1,14 @@
+/* Vài chỉnh nhỏ ngoài Bootstrap */
+.table-hover tbody tr.clickable {
+  cursor: pointer;
+}
+
+.card-stat .bi {
+  font-size: 2rem;
+  opacity: 0.85;
+}
+
+.navbar .nav-link.active {
+  font-weight: 600;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.85);
+}
